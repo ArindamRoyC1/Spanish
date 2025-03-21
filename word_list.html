@@ -12,7 +12,7 @@
     }
 
     h1 {
-      text-align: center;
+      font-size: 2.4em; /* Increased by 20% */
     }
 
     .controls {
@@ -24,8 +24,8 @@
     }
 
     button {
-      padding: 6px 12px;
-      font-size: 0.95em;
+      padding: 8px 14px; /* Increased size */
+      font-size: 1.2em; /* Increased by 20% */
       border: none;
       border-radius: 5px;
       background-color: #007acc;
@@ -45,10 +45,10 @@
 
     th, td {
       border-bottom: 1px solid #ccc;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
       vertical-align: middle;
-      font-size: 1em;
+      font-size: 1.2em; /* Increased by 20% */
     }
 
     th {
@@ -57,8 +57,8 @@
 
     .toggle-btn {
       background-color: #4CAF50;
-      padding: 5px 10px;
-      font-size: 0.9em;
+      padding: 6px 12px; /* Increased size */
+      font-size: 1.2em; /* Increased by 20% */
       text-align: center;
       display: inline-block;
     }
@@ -69,7 +69,7 @@
 
     /* Word count styling */
     #word-count {
-      font-size: 0.85em;
+      font-size: 1.1em; /* Increased */
       color: #666;
       margin-top: 10px;
     }
@@ -82,6 +82,7 @@
     <button onclick="shuffleWords()">Shuffle</button>
     <button onclick="sortAlphabetically()">Alphabetical</button>
     <button onclick="showAll()">Show All</button>
+    <button onclick="hideAll()">Hide All</button> <!-- 🆕 Added Hide All -->
   </div>
 
   <table>
@@ -170,6 +171,18 @@
 
       document.querySelectorAll('.toggle-btn').forEach(btn => {
         btn.textContent = 'Hide';
+      });
+    }
+
+    function hideAll() {
+      currentWords.forEach((word, index) => {
+        const cell = document.getElementById(`english-${index}`);
+        cell.textContent = ' '.repeat(word.english.length);
+        cell.classList.add('hidden');
+      });
+
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.textContent = 'Show';
       });
     }
 

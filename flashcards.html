@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Spanish Flashcards (Show / Done)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    #flashcards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .flashcard {
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      width: 200px;
+      padding: 10px;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .flashcard p {
+      margin: 0;
+      padding: 5px 0;
+      font-size: 1.1em;
+      text-align: center;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #4CAF50;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      font-size: 1em;
+      padding: 5px 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Spanish Flashcards (Show / Done)</h1>
+
+  <!-- Container for the flashcards -->
+  <div id="flashcards-container"></div>
+
+  <!-- 1) Load the external JS file defining 'words' first -->
+  <script src="words.js"></script>
+
+  <!-- 2) Main script that references 'words' and creates the flashcards -->
+  <script>
+    // We assume 'words' is defined in words.js.
+
+    // Returns a random word object from the 'words' array
+    function getRandomWord() {
+      const randomIndex = Math.floor(Math.random() * words.length);
+      return words[randomIndex];
+    }
+
+    // Creates a single flashcard DOM element
+    function createFlashcard(wordObj) {
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'flashcard';
+
+      // Spanish text (visible by default)
+      const spanishP = document.createElement('p');
+      spanishP.textContent = wordObj.spanish;
+
+      // English text (hidden initially)
+      const englishP = document.createElement('p');
+      englishP.textContent = wordObj.english;
+      englishP.style.display = 'none'; 
+
+      // Button row
+      const buttonRow = document.createElement('div');
+      buttonRow.className = 'button-row';
+
+      // "Show" button - reveals the English meaning and "Done" button
+      const showButton = document.createElement('button');
+      showButton.textContent = 'Show';
+      showButton.addEventListener('click', () => {
+        englishP.style.display = 'block';   // Reveal English
+        showButton.style.display = 'none';  // Hide 'Show'
+        doneButton.style.display = 'inline-block'; // Show 'Done'
+      });
+
+      // "Done" button - replaces the card with a new one (hidden initially)
+      const doneButton = document.createElement('button');
+      doneButton.textContent = 'Done';
+      doneButton.style.display = 'none';
+      doneButton.addEventListener('click', () => {
+        replaceCard(cardDiv);
+      });
+
+      buttonRow.appendChild(showButton);
+      buttonRow.appendChild(doneButton);
+
+      cardDiv.appendChild(spanishP);
+      cardDiv.appendChild(englishP);
+      cardDiv.appendChild(buttonRow);
+
+      return cardDiv;
+    }
+
+    // Replace an existing card with a new one
+    function replaceCard(oldCard) {
+      const newWordObj = getRandomWord();
+      const newCard = createFlashcard(newWordObj);
+      const container = document.getElementById('flashcards-container');
+      container.replaceChild(newCard, oldCard);
+    }
+
+    // Display the initial 4 flashcards
+    function displayInitialFlashcards() {
+      const container = document.getElementById('flashcards-container');
+      for (let i = 0; i < 4; i++) {
+        const wordObj = getRandomWord();
+        const newCard = createFlashcard(wordObj);
+        container.appendChild(newCard);
+      }
+    }
+
+    // On page load, show the flashcards
+    window.onload = () => {
+      displayInitialFlashcards();
+    };
+  </script>
+</body>
+</html>

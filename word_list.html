@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Spanish Word List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 6px 12px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 5px;
+      background-color: #007acc;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 1em;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .toggle-btn {
+      background-color: #4CAF50;
+      padding: 5px 10px;
+      font-size: 0.9em;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .toggle-btn:hover {
+      background-color: #3e9440;
+    }
+
+    /* Word count styling */
+    #word-count {
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Spanish Word List</h1>
+
+  <div class="controls">
+    <button onclick="shuffleWords()">Shuffle</button>
+    <button onclick="sortAlphabetically()">Alphabetical</button>
+    <button onclick="showAll()">Show All</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Spanish</th>
+        <th>English</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="word-table-body"></tbody>
+  </table>
+
+  <div id="word-count"></div> <!-- Word count displayed here -->
+
+  <script src="words.js"></script>
+  <script>
+    let currentWords = [...words];
+    const tbody = document.getElementById('word-table-body');
+    const wordCountDisplay = document.getElementById('word-count');
+
+    function renderWords() {
+      tbody.innerHTML = '';
+      currentWords.forEach(({ spanish, english }, index) => {
+        const row = document.createElement('tr');
+
+        // Spanish cell
+        const spanishCell = document.createElement('td');
+        spanishCell.textContent = spanish;
+
+        // English meaning cell (hidden by default)
+        const englishCell = document.createElement('td');
+        englishCell.className = 'english-meaning hidden';
+        englishCell.id = `english-${index}`;
+        englishCell.textContent = ' '.repeat(english.length);
+
+        // Action cell with a single button
+        const actionCell = document.createElement('td');
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toggle-btn';
+        toggleBtn.textContent = 'Show';
+
+        toggleBtn.onclick = () => {
+          const cell = document.getElementById(`english-${index}`);
+          const isHidden = cell.classList.contains('hidden');
+          cell.textContent = isHidden ? english : ' '.repeat(english.length);
+          cell.classList.toggle('hidden');
+          toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
+        };
+
+        actionCell.appendChild(toggleBtn);
+
+        row.appendChild(spanishCell);
+        row.appendChild(englishCell);
+        row.appendChild(actionCell);
+
+        tbody.appendChild(row);
+      });
+
+      updateWordCount();
+    }
+
+    function updateWordCount() {
+      wordCountDisplay.textContent = `Total words: ${currentWords.length}`;
+    }
+
+    function shuffleWords() {
+      for (let i = currentWords.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentWords[i], currentWords[j]] = [currentWords[j], currentWords[i]];
+      }
+      renderWords();
+    }
+
+    function sortAlphabetically() {
+      currentWords.sort((a, b) => a.spanish.localeCompare(b.spanish));
+      renderWords();
+    }
+
+    function showAll() {
+      currentWords.forEach((word, index) => {
+        const cell = document.getElementById(`english-${index}`);
+        cell.textContent = word.english;
+        cell.classList.remove('hidden');
+      });
+
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.textContent = 'Hide';
+      });
+    }
+
+    // Initial render
+    renderWords();
+  </script>
+</body>
+</html>

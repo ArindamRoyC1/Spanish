@@ -12,20 +12,26 @@
     }
 
     h1 {
-      font-size: 2.4em; /* Increased by 20% */
+      font-size: 2.4em; /* 20% bigger */
     }
 
     .controls {
       display: flex;
-      justify-content: center;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
       margin-bottom: 15px;
     }
 
+    select {
+      padding: 8px;
+      font-size: 1.1em;
+      border-radius: 5px;
+    }
+
     button {
-      padding: 8px 14px; /* Increased size */
-      font-size: 1.2em; /* Increased by 20% */
+      padding: 8px 14px;
+      font-size: 1.2em; /* 20% bigger */
       border: none;
       border-radius: 5px;
       background-color: #007acc;
@@ -41,6 +47,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
     }
 
     th, td {
@@ -48,7 +55,7 @@
       padding: 12px;
       text-align: center;
       vertical-align: middle;
-      font-size: 1.2em; /* Increased by 20% */
+      font-size: 1.2em; /* 20% bigger */
     }
 
     th {
@@ -57,8 +64,8 @@
 
     .toggle-btn {
       background-color: #4CAF50;
-      padding: 6px 12px; /* Increased size */
-      font-size: 1.2em; /* Increased by 20% */
+      padding: 6px 12px; /* slightly bigger */
+      font-size: 1.2em;  /* 20% bigger */
       text-align: center;
       display: inline-block;
     }
@@ -69,20 +76,36 @@
 
     /* Word count styling */
     #word-count {
-      font-size: 1.1em; /* Increased */
+      font-size: 1.1em;
       color: #666;
       margin-top: 10px;
+    }
+
+    /* Hidden text styling */
+    .english-meaning.hidden {
+      color: transparent;
+      text-shadow: 0 0 0 #ccc;
     }
   </style>
 </head>
 <body>
   <h1>Spanish Word List</h1>
 
+  <!-- NEW: Wordlist Selector + "Load Wordlist" Button -->
+  <div class="controls">
+    <select id="wordlist-select">
+      <option value="words.js">Original Wordlist</option>
+      <option value="family_pequena.js">Small Family Wordlist</option>
+    </select>
+    <button onclick="loadWordlist()">Load Wordlist</button>
+  </div>
+
+  <!-- Existing controls for the loaded words -->
   <div class="controls">
     <button onclick="shuffleWords()">Shuffle</button>
     <button onclick="sortAlphabetically()">Alphabetical</button>
     <button onclick="showAll()">Show All</button>
-    <button onclick="hideAll()">Hide All</button> <!-- 🆕 Added Hide All -->
+    <button onclick="hideAll()">Hide All</button>
   </div>
 
   <table>
@@ -98,12 +121,42 @@
 
   <div id="word-count"></div> <!-- Word count displayed here -->
 
-  <script src="words.js"></script>
   <script>
-    let currentWords = [...words];
+    // We'll dynamically load whichever wordlist the user selects.
+    // 'words' will be defined in the loaded script. We'll copy it to currentWords.
+
+    let currentWords = [];             // We'll store the active array of words here.
     const tbody = document.getElementById('word-table-body');
     const wordCountDisplay = document.getElementById('word-count');
 
+    // 1) Load the chosen JS file dynamically
+    function loadWordlist() {
+      const file = document.getElementById('wordlist-select').value;
+
+      // Remove any previously added <script> for a clean reload
+      // (Optional if you're only loading once, but safer to remove old references.)
+      const oldScript = document.getElementById('dynamic-wordlist');
+      if (oldScript) {
+        oldScript.remove();
+      }
+
+      // Create a new <script> tag and append
+      const script = document.createElement('script');
+      script.id = 'dynamic-wordlist';
+      script.src = file;
+      script.onload = () => {
+        // 'words' should now be defined globally by the loaded script
+        if (typeof words !== 'undefined') {
+          currentWords = [...words]; // copy
+          renderWords();
+        } else {
+          alert('No "words" array found in the loaded file.');
+        }
+      };
+      document.head.appendChild(script);
+    }
+
+    // 2) Render the word list into the table
     function renderWords() {
       tbody.innerHTML = '';
       currentWords.forEach(({ spanish, english }, index) => {
@@ -113,13 +166,14 @@
         const spanishCell = document.createElement('td');
         spanishCell.textContent = spanish;
 
-        // English meaning cell (hidden by default)
+        // English cell (hidden by default)
         const englishCell = document.createElement('td');
-        englishCell.className = 'english-meaning hidden';
+        englishCell.classList.add('english-meaning', 'hidden');
         englishCell.id = `english-${index}`;
+        // Use placeholder spaces for the hidden text
         englishCell.textContent = ' '.repeat(english.length);
 
-        // Action cell with a single button
+        // Action cell with a toggle button
         const actionCell = document.createElement('td');
         const toggleBtn = document.createElement('button');
         toggleBtn.className = 'toggle-btn';
@@ -138,17 +192,18 @@
         row.appendChild(spanishCell);
         row.appendChild(englishCell);
         row.appendChild(actionCell);
-
         tbody.appendChild(row);
       });
 
       updateWordCount();
     }
 
+    // 3) Utility: Update the word count
     function updateWordCount() {
       wordCountDisplay.textContent = `Total words: ${currentWords.length}`;
     }
 
+    // 4) Shuffle the loaded words
     function shuffleWords() {
       for (let i = currentWords.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -157,11 +212,13 @@
       renderWords();
     }
 
+    // 5) Sort the loaded words (alphabetically by Spanish)
     function sortAlphabetically() {
       currentWords.sort((a, b) => a.spanish.localeCompare(b.spanish));
       renderWords();
     }
 
+    // 6) Show all words
     function showAll() {
       currentWords.forEach((word, index) => {
         const cell = document.getElementById(`english-${index}`);
@@ -174,6 +231,7 @@
       });
     }
 
+    // 7) Hide all words
     function hideAll() {
       currentWords.forEach((word, index) => {
         const cell = document.getElementById(`english-${index}`);
@@ -185,9 +243,6 @@
         btn.textContent = 'Show';
       });
     }
-
-    // Initial render
-    renderWords();
   </script>
 </body>
 </html>
